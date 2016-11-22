@@ -17,39 +17,18 @@ class ChatRoomSpec
     with ImplicitSender {
   "entered" - {
     "should get messages sent by me" in {
-      val chatRoom: Room = getRoom
 
-      chatRoom ! SendMessage(text)
-
-      expectMsg(RoomMessage(text, chatRoom, User(self)))
     }
     "should get message sent by others" in {
-      val chatRoom: Room = getRoom
-      val otherGuy = getOtherGuy(chatRoom)
 
-      otherGuy.send(chatRoom.ref, SendMessage(text))
-
-      expectMsg(RoomMessage(text, chatRoom, User(otherGuy.ref)))
     }
   }
   "leave" - {
     "should not get further messages after i leave" in {
-      val chatRoom = getRoom
-      chatRoom ! Leave()
 
-      val otherGuy = getOtherGuy(chatRoom)
-      otherGuy.send(chatRoom.ref, SendMessage(text))
-
-      expectNoMsg()
     }
     "should reject my messages after i leave" in {
-      val chatRoom = getRoom
-      chatRoom ! Leave()
 
-      val msg = SendMessage(text)
-      chatRoom ! msg
-
-      expectMsg(Rejected(msg))
     }
   }
 
