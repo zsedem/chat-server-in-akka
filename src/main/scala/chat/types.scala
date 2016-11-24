@@ -23,4 +23,5 @@ case class Leave()
 case class Rejected(msg: SendMessage)
 case class User(ref: ActorRef) { def !(t: Any)(implicit sender: ActorRef): Unit = ref ! t }
 case class Room(ref: ActorRef) { def !(t: Any)(implicit sender: ActorRef): Unit = ref ! t }
+case class AlreadyExists()
 
