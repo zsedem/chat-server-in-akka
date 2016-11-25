@@ -8,6 +8,7 @@ package chat
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestActorRef, TestKit, TestProbe}
+import chat.actors._
 import org.scalatest.{FreeSpecLike, Matchers}
 
 class ChatRoomSpec

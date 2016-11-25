@@ -4,7 +4,7 @@
  * Copyright (c) 2016 BalaBit
  * All rights reserved.
  */
-package chat
+package chat.actors
 
 import akka.actor.{Actor, Props}
 
@@ -16,10 +16,10 @@ class ChatServer extends Actor {
     case CreateRoom(roomName) =>
       sender ! Room({
         val actorProps = Props {
-          new ChatRoom()
+          new ChatRoom(roomName)
         }
         context.actorOf(actorProps, roomName)
-      })
+      }, roomName)
 
     case _ =>
 

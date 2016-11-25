@@ -8,6 +8,7 @@ package chat
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestActorRef, TestKit}
+import chat.actors._
 import org.scalatest.{FreeSpec, FreeSpecLike, Matchers}
 
 import scala.reflect.ClassTag

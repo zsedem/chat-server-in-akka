@@ -14,5 +14,11 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-remote" % "2.4.14",
   "com.typesafe.akka" %% "akka-slf4j" % "2.4.14",
   "com.typesafe.akka" %% "akka-testkit" % "2.4.14",
-  "org.scalatest" %% "scalatest" % "3.0.0"
+  "org.scalatest" %% "scalatest" % "3.0.0",
+  "jline" % "jline" % "2.14.2"
 )
+fork := true
+
+import com.typesafe.sbt.SbtStartScript
+
+Seq(SbtStartScript.startScriptForClassesSettings: _*)
