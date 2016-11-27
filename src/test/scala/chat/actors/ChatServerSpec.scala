@@ -4,12 +4,11 @@
  * Copyright (c) 2016 BalaBit
  * All rights reserved.
  */
-package chat
+package chat.actors
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestActorRef, TestKit}
-import chat.actors._
-import org.scalatest.{FreeSpec, FreeSpecLike, Matchers}
+import org.scalatest.{FreeSpecLike, Matchers}
 
 import scala.reflect.ClassTag
 
@@ -37,9 +36,6 @@ class ChatServerSpec
       receiveNext[Room]()
       server ! CreateRoom("bsp")
       expectMsg(AlreadyExists())
-    }
-    "messages sent to created room are forwarded to me" in {
-
     }
   }
 

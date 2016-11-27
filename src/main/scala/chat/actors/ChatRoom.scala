@@ -5,25 +5,58 @@
  * All rights reserved.
  */
 package chat.actors
+import java.time.OffsetDateTime
 
-import akka.actor.{Actor, ActorLogging}
+import akka.actor.FSM
 
-class ChatRoom(name: String) extends Actor with ActorLogging {
-  var users = Set[User]()
-  override def receive: Receive = {
-    case Enter() =>
+class ChatRoom(name: String) extends FSM[ChatRoom.State, ChatRoom.Data] {
+  import ChatRoom._
+
+  startWith(Active, ActiveRoomState())
+
+  when(Active) {
+    case Event(Enter(), st: ActiveRoomState) =>
       val user = User(sender)
-      users = users + user
-      log.debug("{} user did connected", user)
+      log.debug("{} user connected", user)
+      stay using st.copy(users = st.users + user)
 
-    case msg: SendMessage =>
-      if (users.exists(_.ref == sender)) {
-        users foreach (_ ! RoomMessage(msg.text, Room(self, name), User(sender)))
+    case Event(msg: SendMessage, st: ActiveRoomState) =>
+      val user = User(sender)
+      if (st.users.exists(_.ref == sender)) {
+        st.users foreach (_ ! RoomMessage(msg.text, Room(self, name), user))
+
+        stay using st.copy(messages = ArchivedMessage(OffsetDateTime.now,
+                                                      msg.text,
+                                                      user) +: st.messages)
       } else {
         sender ! Rejected(msg)
+        stay
       }
 
-    case Leave() =>
-      users -= User(sender)
+    case Event(Leave(), st: ActiveRoomState) =>
+      val user = User(sender)
+      log.debug("{} user disconnected", user)
+      stay using st.copy(users = st.users - user)
   }
+
+  initialize()
+}
+
+object ChatRoom {
+  private[actors] sealed trait State
+  private[actors] case object Active extends State
+  private[actors] case object Archived extends State
+
+  private[actors] sealed trait Data
+  private[actors] case class ArchivedMessages(messages: List[ArchivedMessage])
+      extends Data
+
+  private[actors] case class ActiveRoomState(users: Set[User] = Set(),
+                                             messages: List[ArchivedMessage] =
+                                               List())
+      extends Data
+
+  private[actors] case class ArchivedMessage(time: OffsetDateTime,
+                                             text: String,
+                                             user: User)
 }

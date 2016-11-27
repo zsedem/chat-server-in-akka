@@ -9,8 +9,7 @@ package chat
 import akka.actor.{Actor, ActorPath, ActorRef, ActorSelection, ActorSystem, Props}
 import chat.actors._
 import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
-
-import scala.util.{Random, Try}
+import scala.util.Random
 
 object ClientApp extends App {
   import MainUtils._

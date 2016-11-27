@@ -14,12 +14,16 @@ class ChatServer extends Actor {
       sender ! CurrentRooms(List())
 
     case CreateRoom(roomName) =>
-      sender ! Room({
-        val actorProps = Props {
-          new ChatRoom(roomName)
-        }
-        context.actorOf(actorProps, roomName)
-      }, roomName)
+      if (context.child(roomName).isEmpty) {
+        sender ! Room({
+          val actorProps = Props {
+            new ChatRoom(roomName)
+          }
+          context.actorOf(actorProps, roomName)
+        }, roomName)
+      } else {
+        sender ! AlreadyExists()
+      }
 
     case _ =>
 

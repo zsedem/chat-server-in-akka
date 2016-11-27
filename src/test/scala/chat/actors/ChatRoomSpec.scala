@@ -4,15 +4,14 @@
  * Copyright (c) 2016 BalaBit
  * All rights reserved.
  */
-package chat
+package chat.actors
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestActorRef, TestKit, TestProbe}
-import chat.actors._
 import org.scalatest.{FreeSpecLike, Matchers}
 
 class ChatRoomSpec
-  extends TestKit(ActorSystem("ChatServerUnit"))
+    extends TestKit(ActorSystem("ChatServerUnit"))
     with FreeSpecLike
     with Matchers
     with ImplicitSender {
@@ -56,7 +55,8 @@ class ChatRoomSpec
   val text = "some idiot message"
 
   private def getRoom = {
-    val chatRoom = Room(TestActorRef(new ChatRoom()))
+    val name = "testRoom"
+    val chatRoom = Room(TestActorRef(new ChatRoom(name)), name)
     chatRoom ! Enter()
     chatRoom
   }
