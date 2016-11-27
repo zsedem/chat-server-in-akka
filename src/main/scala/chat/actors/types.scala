@@ -6,10 +6,9 @@
  */
 package chat.actors
 
+import java.time.OffsetDateTime
+
 import akka.actor.ActorRef
-
-import scala.language.implicitConversions
-
 
 case class CurrentRooms(rooms: List[Room])
 case class Login(name: String)
@@ -22,7 +21,13 @@ case class RoomMessage(text: String, room: Room, user: User) {
 case class Enter()
 case class Leave()
 case class Rejected(msg: SendMessage)
-case class User(ref: ActorRef) { def !(t: Any)(implicit sender: ActorRef): Unit = ref ! t }
-case class Room(ref: ActorRef, name: String) { def !(t: Any)(implicit sender: ActorRef): Unit = ref ! t }
+case class User(ref: ActorRef) {
+  def !(t: Any)(implicit sender: ActorRef): Unit = ref ! t
+}
+case class Room(ref: ActorRef, name: String) {
+  def !(t: Any)(implicit sender: ActorRef): Unit = ref ! t
+}
 case class AlreadyExists()
-
+case class RequestOldMessages()
+case class ArchivedMessage(time: OffsetDateTime, text: String, user: User)
+case object ArchiveRoom
