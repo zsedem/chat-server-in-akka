@@ -47,8 +47,7 @@ class ChatRoom(name: String) extends FSM[ChatRoom.State, ChatRoom.Data] {
 
   when(Archived) {
     case Event(msg: SendMessage, _) =>
-      send
-      er() ! Rejected(msg)
+      sender() ! Rejected(msg)
       stay
     case Event(RequestOldMessages(), st: ArchivedMessages) =>
       st.messages foreach (sender ! _)
