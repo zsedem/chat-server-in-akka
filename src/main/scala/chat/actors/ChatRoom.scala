@@ -33,17 +33,25 @@ class ChatRoom(name: String) extends FSM[ChatRoom.State, ChatRoom.Data] {
         stay
       }
 
-//    case Event(RequestOldMessages(), ActiveRoomState(_, messages)) =>
+    case Event(RequestOldMessages(), ActiveRoomState(_, messages)) =>
+      messages foreach (sender ! _)
+      stay
 
     case Event(Leave(), st: ActiveRoomState) =>
       val user = User(sender)
       log.debug("{} user disconnected", user)
       stay using st.copy(users = st.users - user)
-//    case Event(ArchiveRoom, st: ActiveRoomState) =>
+    case Event(ArchiveRoom, st: ActiveRoomState) =>
+      goto(Archived) using (ArchivedMessages(st.messages))
   }
 
   when(Archived) {
-    case Event(_, _) =>
+    case Event(msg: SendMessage, _) =>
+      send
+      er() ! Rejected(msg)
+      stay
+    case Event(RequestOldMessages(), st: ArchivedMessages) =>
+      st.messages foreach (sender ! _)
       stay
   }
 

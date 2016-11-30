@@ -6,7 +6,14 @@
  */
 package chat
 
-import akka.actor.{Actor, ActorPath, ActorRef, ActorSelection, ActorSystem, Props}
+import akka.actor.{
+  Actor,
+  ActorPath,
+  ActorRef,
+  ActorSelection,
+  ActorSystem,
+  Props
+}
 import chat.actors._
 import com.typesafe.config.{ConfigFactory, ConfigValueFactory}
 import scala.util.Random
@@ -18,14 +25,16 @@ object ClientApp extends App {
       args(0)
     } catch {
       case _: IndexOutOfBoundsException =>
-        System.err.println("\nError: Provide actor server in the first argument")
+        System.err.println(
+          "\nError: Provide actor server in the first argument")
         System.exit(1)
     }
   }
   private val config = ConfigFactory
     .load("client")
-    .withValue("akka.remote.netty.tcp.port",
-               ConfigValueFactory.fromAnyRef(new Random().nextInt(10000) + 2000))
+    .withValue(
+      "akka.remote.netty.tcp.port",
+      ConfigValueFactory.fromAnyRef(new Random().nextInt(10000) + 2000))
 
   val system: ActorSystem =
     ActorSystem.create("ChatClient", config)

@@ -52,16 +52,28 @@ class ChatRoomSpec
 
   "request historic messages" - {
     "should get messages historically on request" in {
-
+      val room = getPreviouslyActiveRoom
+      room ! RequestOldMessages()
+      val answer = receiveNext[ArchivedMessage]()
+      answer.text shouldEqual commonMsg.text
     }
   }
 
   "archived" - {
     "should not accept any messages after archived" in {
-
+      val room = getRoom
+      room ! ArchiveRoom
+      room ! commonMsg
+      expectMsg(Rejected(commonMsg))
     }
     "should get messages historically on request" in {
-
+      val room = getRoom
+      room ! commonMsg
+      receiveNext[RoomMessage]()
+      room ! ArchiveRoom
+      room ! RequestOldMessages()
+      val answer = receiveNext[ArchivedMessage]()
+      answer.text shouldEqual commonMsg.text
     }
   }
 

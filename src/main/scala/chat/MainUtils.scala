@@ -36,12 +36,13 @@ object MainUtils {
       Try(loop(readLine)).failed.foreach(_.printStackTrace())
     }).start()
 
-    (str: String) => {
-      val buffer = reader.getCursorBuffer.buffer
-      print(s"\r${" " * buffer.length}\r")
-      println(str)
-      print(prompt + buffer.toString)
-    }
+    (str: String) =>
+      {
+        val buffer = reader.getCursorBuffer.buffer
+        print(s"\r${" " * buffer.length}\r")
+        println(str)
+        print(prompt + buffer.toString)
+      }
   }
 
   sealed trait NextAction
