@@ -6,27 +6,35 @@
  */
 package chat.actors
 
-import akka.actor.{Actor, Props}
+import akka.actor.{FSM, Props}
 
-class ChatServer extends Actor {
-  override def receive: Receive = {
-    case Login(_) =>
+class ChatServer extends FSM[ChatServer.State, List[String]] {
+  import ChatServer._
+  startWith(Active, List())
+  when(Active) {
+    case Event(Login(_), _: List[String]) => {
       sender ! CurrentRooms(List())
-
-    case CreateRoom(roomName) =>
+      stay
+    }
+    case Event(CreateRoom(roomName), _: List[String]) => {
       if (context.child(roomName).isEmpty) {
         sender ! Room({
-          val actorProps = Props {
-            new ChatRoom(roomName)
-          }
+          val actorProps = Props({new ChatRoom(roomName)})
           context.actorOf(actorProps, roomName)
         }, roomName)
       } else {
         sender ! AlreadyExists()
       }
-
-    case _ =>
-
+      stay
+    }
   }
+
+  initialize()
 }
 
+object ChatServer {
+  private[actors] sealed trait State
+  private[actors] case object Active extends State
+
+
+}
