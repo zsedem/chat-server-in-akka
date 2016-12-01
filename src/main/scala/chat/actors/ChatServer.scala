@@ -9,21 +9,33 @@ package chat.actors
 import akka.actor.{FSM, Props}
 import akka.actor.ActorRef
 
-class ChatServer extends FSM[ChatServer.State, Map[String, ActorRef]] {
+class ChatServer extends FSM[ChatServer.State, ChatServer.Data] {
   import ChatServer._
-  startWith(Active, Map())
+  startWith(Active, ChatServer.Data(Map()))
   when(Active) {
-    case Event(Login(userName), users: Map[String, ActorRef]) => {
-      if (users.contains(userName)) {
-        sender ! RejectedUserAlreadyLoggedIn(Login(userName))
-        stay using users
-      }
-      else {
-        sender ! CurrentRooms(List())
-        stay using (users + (userName -> sender))
+    case Event(Register(userName), data: Data) => {
+      if (data.users.contains(userName)) {
+        sender ! RejectedUserAlreadySignedUp(Register(userName))
+        stay
+      } else {
+        sender ! RegistrationSuccessful(Register(userName))
+        stay using Data(data.users + (userName -> None))
       }
     }
-    case Event(CreateRoom(roomName), users: Map[String, ActorRef]) => {
+    case Event(Login(userName), data: Data) => {
+      // if not registered
+      if (!data.users.contains(userName)) {
+        sender ! RejectedUserNotRegistered(Login(userName))
+        stay
+      } else if (data.users(userName) != None) {
+        sender ! RejectedUserAlreadyLoggedIn(Login(userName))
+        stay
+      } else {
+        sender ! CurrentRooms(List())
+        stay using (Data(data.users + (userName -> Some(sender))))
+      }
+    }
+    case Event(CreateRoom(roomName), data: Data) => {
       if (context.child(roomName).isEmpty) {
         sender ! Room({
           val actorProps = Props({new ChatRoom(roomName)})
@@ -43,5 +55,5 @@ object ChatServer {
   private[actors] sealed trait State
   private[actors] case object Active extends State
 
-
+  private[actors] case class Data(users: Map[String, Option[ActorRef]])
 }

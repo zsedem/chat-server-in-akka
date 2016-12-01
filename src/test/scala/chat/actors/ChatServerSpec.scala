@@ -17,18 +17,41 @@ class ChatServerSpec
     with FreeSpecLike
     with Matchers
     with ImplicitSender {
+  "sign up message" - {
+    "users can register" in {
+      val server = getServer
+      server ! Register("zsedem")
+      expectMsg(RegistrationSuccessful(Register("zsedem")))
+    }
+    "should fail if user already exists" in {
+      val server = getServer
+      server ! Register("zsedem")
+      expectMsg(RegistrationSuccessful(Register("zsedem")))
+      server ! Register("zsedem")
+      expectMsg(RejectedUserAlreadySignedUp(Register("zsedem")))
+    }
+  }
   "login message" - {
     "should answered with a list of rooms" in {
       val server = getServer
+      server ! Register("zsedem")
+      expectMsg(RegistrationSuccessful(Register("zsedem")))
       server ! Login("zsedem")
       expectMsg(CurrentRooms(List()))
     }
     "should not allow user with same name" in {
       val server = getServer
+      server ! Register("zsedem")
+      expectMsg(RegistrationSuccessful(Register("zsedem")))
       server ! Login("zsedem")
       expectMsg(CurrentRooms(List()))
       server ! Login("zsedem")
       expectMsg(RejectedUserAlreadyLoggedIn(Login("zsedem")))
+    }
+    "non-registered users cannot log in" in {
+      val server = getServer
+      server ! Login("zsedem")
+      expectMsg(RejectedUserNotRegistered(Login("zsedem")))
     }
   }
   "create rooms" - {

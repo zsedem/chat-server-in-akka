@@ -11,12 +11,17 @@ import java.time.OffsetDateTime
 import akka.actor.ActorRef
 
 case class CurrentRooms(rooms: List[Room])
+case class Register(name: String)
 case class Login(name: String)
 case class CreateRoom(name: String)
 case class SendMessage(text: String)
 case class RoomMessage(text: String, room: Room, user: User) {
   def answer(msg: SendMessage)(implicit sender: ActorRef): Unit = room ! msg
 }
+
+case class RegistrationSuccessful(msg: Register)
+case class RejectedUserAlreadySignedUp(msg: Register)
+case class RejectedUserNotRegistered(msg: Login)
 
 case class Enter()
 case class Leave()
