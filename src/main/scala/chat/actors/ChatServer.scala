@@ -14,7 +14,7 @@ class ChatServer extends FSM[ChatServer.State, ChatServer.Data] {
   startWith(Active, ChatServer.Data(Map()))
   when(Active) {
     case Event(Register(userName), data: Data) => {
-      if (data.users.contains(userName)) {
+      if (isRegistered(data, userName)) {
         sender ! RejectedUserAlreadySignedUp(Register(userName))
         stay
       } else {
@@ -23,11 +23,10 @@ class ChatServer extends FSM[ChatServer.State, ChatServer.Data] {
       }
     }
     case Event(Login(userName), data: Data) => {
-      // if not registered
-      if (!data.users.contains(userName)) {
+      if (!isRegistered(data, userName)) {
         sender ! RejectedUserNotRegistered(Login(userName))
         stay
-      } else if (data.users(userName) != None) {
+      } else if (isLoggedIn(data, userName)) {
         sender ! RejectedUserAlreadyLoggedIn(Login(userName))
         stay
       } else {
@@ -56,4 +55,7 @@ object ChatServer {
   private[actors] case object Active extends State
 
   private[actors] case class Data(users: Map[String, Option[ActorRef]])
+
+  private[actors] def isRegistered(data: Data, userName: String): Boolean = data.users.contains(userName)
+  private[actors] def isLoggedIn(data: Data, userName: String): Boolean = data.users(userName) != None
 }
