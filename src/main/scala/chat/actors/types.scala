@@ -21,6 +21,7 @@ case class RoomMessage(text: String, room: Room, user: User) {
 case class Enter()
 case class Leave()
 case class Rejected(msg: SendMessage)
+case class RejectedUserAlreadyLoggedIn(msg: Login)
 case class User(ref: ActorRef) {
   def !(t: Any)(implicit sender: ActorRef): Unit = ref ! t
 }

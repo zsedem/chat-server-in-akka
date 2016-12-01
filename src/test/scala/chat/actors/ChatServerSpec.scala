@@ -23,6 +23,13 @@ class ChatServerSpec
       server ! Login("zsedem")
       expectMsg(CurrentRooms(List()))
     }
+    "should not allow user with same name" in {
+      val server = getServer
+      server ! Login("zsedem")
+      expectMsg(CurrentRooms(List()))
+      server ! Login("zsedem")
+      expectMsg(RejectedUserAlreadyLoggedIn(Login("zsedem")))
+    }
   }
   "create rooms" - {
     "if a room created it should answer with a room" in {

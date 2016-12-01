@@ -7,16 +7,23 @@
 package chat.actors
 
 import akka.actor.{FSM, Props}
+import akka.actor.ActorRef
 
-class ChatServer extends FSM[ChatServer.State, List[String]] {
+class ChatServer extends FSM[ChatServer.State, Map[String, ActorRef]] {
   import ChatServer._
-  startWith(Active, List())
+  startWith(Active, Map())
   when(Active) {
-    case Event(Login(_), _: List[String]) => {
-      sender ! CurrentRooms(List())
-      stay
+    case Event(Login(userName), users: Map[String, ActorRef]) => {
+      if (users.contains(userName)) {
+        sender ! RejectedUserAlreadyLoggedIn(Login(userName))
+        stay using users
+      }
+      else {
+        sender ! CurrentRooms(List())
+        stay using (users + (userName -> sender))
+      }
     }
-    case Event(CreateRoom(roomName), _: List[String]) => {
+    case Event(CreateRoom(roomName), users: Map[String, ActorRef]) => {
       if (context.child(roomName).isEmpty) {
         sender ! Room({
           val actorProps = Props({new ChatRoom(roomName)})
